@@ -1,2 +1,2 @@
-# matlib
+# Matlib
 A c++ library for linear algebra operations
