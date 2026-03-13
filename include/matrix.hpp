@@ -124,3 +124,5 @@ class Matrix {
     unsigned x;
     unsigned y;
 };
+
+Matrix identityMatrix(unsigned size);

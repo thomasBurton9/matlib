@@ -1,13 +1,12 @@
 #include <print>
 #include <vector>
 
-
 #include "matrix.hpp"
 
+using std::initializer_list;
 using std::print;
 using std::println;
 using std::vector;
-using std::initializer_list;
 
 void Matrix::display() {
     for (vector<double> vector : data) {
@@ -31,10 +30,17 @@ void Matrix::assignData(initializer_list<initializer_list<double>> mat) {
     }
 }
 
+Matrix identityMatrix(unsigned size) {
+    Matrix temp = Matrix(size, size);
+    for (int i = 0; i < size; i++) {
+        temp.data[i][i] = 1;
+    }
 
+    return temp;
+}
 
 vector<double> getColumn(const vector<vector<double>> &mat_data,
-                              unsigned index) {
+                         unsigned index) {
     vector<double> column_vector{};
     for (int i = 0; i < mat_data.size(); i++) {
         column_vector.push_back(mat_data[i][index]);
