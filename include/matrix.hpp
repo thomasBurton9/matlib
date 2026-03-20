@@ -6,6 +6,7 @@
 #include <print>
 #include <string>
 #include <vector>
+#include <tuple>
 
 std::vector<double> getColumn(const std::vector<std::vector<double>> &mat_data,
                               unsigned index);
@@ -19,6 +20,9 @@ class Matrix {
         : x{xSize}, y{ySize}, data(xSize, std::vector<double>(ySize, 0.0)) {}
 
     std::vector<std::vector<double>> data;
+
+    unsigned x;
+    unsigned y;
 
     /// @brief Operator overloading to allow nice printing of Matrix class
     /// @param os Current output stream
@@ -229,11 +233,8 @@ class Matrix {
     void display();
     void assignData(std::initializer_list<std::initializer_list<double>> mat);
 
-  private:
-    unsigned x;
-    unsigned y;
 };
 
 Matrix identityMatrix(unsigned size);
 
-Matrix gaussianSolve(const Matrix &A, const Matrix &b);
+std::tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A, const Matrix &b);

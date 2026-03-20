@@ -1,4 +1,5 @@
 #include <print>
+#include <tuple>
 #include <vector>
 
 #include "matrix.hpp"
@@ -6,6 +7,7 @@
 using std::initializer_list;
 using std::print;
 using std::println;
+using std::tuple;
 using std::vector;
 
 /// @brief Method to print matrix in nice way
@@ -98,4 +100,48 @@ double dotProduct(const vector<double> &x, const vector<double> &y) {
         sum += x[i] * y[i];
     }
     return sum;
+}
+
+/// @brief Creates an upper diagonal matrix to help in solving Ax = b
+/// @param A Square "coefficient" matrix A size n x n
+/// @param b Result matrix, should be size n x 1
+/// @return Resulting upper diagonal Matrix tempA, which has 1s along the main
+/// diagonal and 0s below it.
+/// @return Matrix tempb will be the resulting b matrix after all the
+/// mathematical manipulating
+tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
+                                                const Matrix &b) {
+    // Check if arguments have correct shape.                                               
+    if (A.x != A.y) {
+        throw std::invalid_argument("A must be a square matrix");
+    } else if (A.x != b.x) {
+        throw std::invalid_argument("b must be same length as A");
+    } else if (b.y != 1) {
+        throw std::invalid_argument("b must be of size n x 1");
+    }
+    // Create temporary matrices to allow modification
+    Matrix tempA = A;
+    Matrix tempb = b;
+    // Go row by row
+    for (int i = 0; i < A.x; i++) {
+        // Initially make all the values to the left of the main diagonal in the current row 0.
+        for (int k = 0; k < i; k++) {
+            double A_i_k = tempA.data[i][k];
+            for (int l = k; l < A.x; l++) {
+                tempA.data[i][l] = tempA.data[i][l] - A_i_k * tempA.data[k][l];
+            }
+            tempb.data[i][0] = tempb.data[i][0] - A_i_k * tempb.data[k][0];
+        }
+        // Normalize main diagonal to 1 in the current row
+        double A_i_i = tempA.data[i][i];
+        for (int j = 0; j < A.y; j++) {
+            if (tempA.data[i][i] == 0.0) {
+                throw std::runtime_error("Not implemented yet");
+            }
+            tempA.data[i][j] =
+                tempA.data[i][j] / A_i_i; // Convert the main number to a 1
+        }
+        tempb.data[i][0] = tempb.data[i][0] / A_i_i; // Do the same to b
+    }
+    return {tempA, tempb};
 }
