@@ -101,7 +101,40 @@ double dotProduct(const vector<double> &x, const vector<double> &y) {
     }
     return sum;
 }
+/// @brief Takes in an upper diagonal matrix and solves the equation Ax = b for x.
+/// @param A Upper Diagonal matrix - 1s along main diagonal and 0s below it of shape n x n
+/// @param b The solution vector of shape n x 1
+/// @return The solution "x" in Ax = b.
+vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
 
+    // Check if arguments have correct shape.                                               
+    if (A.x != A.y) {
+        throw std::invalid_argument("A must be a square matrix");
+    } else if (A.x != b.x) {
+        throw std::invalid_argument("b must be same length as A");
+    } else if (b.y != 1) {
+        throw std::invalid_argument("b must be of size n x 1");
+    }
+
+    Matrix tempA = A;
+    Matrix tempb = b;
+
+    vector<double> results(b.x, 0);
+    
+    for (int i = b.x - 1; i >= 0; i--) {
+        for (int j = i + 1; j < b.x; j++) {
+            tempb[i][0] = tempb[i][0] - tempb[j][0] * tempA[i][j]; 
+            tempA[i][j] = tempA[i][j] - tempA[i][j];
+        }
+    }
+
+    for (int i = 0; i < b.x; i++) {
+        results[i] = tempb[i][0];
+    }
+
+    return results;
+
+}
 /// @brief Creates an upper diagonal matrix to help in solving Ax = b
 /// @param A Square "coefficient" matrix A size n x n
 /// @param b Result matrix, should be size n x 1
@@ -144,4 +177,14 @@ tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
         tempb.data[i][0] = tempb.data[i][0] / A_i_i; // Do the same to b
     }
     return {tempA, tempb};
+}
+/// @brief Solves Ax = b using guassian elimination
+/// @param A Matrix A of shape n x n
+/// @param b Matrix b of shape n x 1
+/// @return The solutions ("x") to the equation Ax = b
+vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
+    auto [upperA, upperb] = createUpperDiagonalMatrix(A, b);
+    vector<double> resultVector = getCoefficientSolutions(upperA, upperb);
+    
+    return resultVector;
 }

@@ -246,3 +246,7 @@ class Matrix {
 Matrix identityMatrix(unsigned size);
 
 std::tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A, const Matrix &b);
+
+std::vector<double> createMainDiagonalMatrix(const Matrix &A, const Matrix &b);
+
+std::vector<double> guassianSolve(const Matrix &A, const Matrix &b);
