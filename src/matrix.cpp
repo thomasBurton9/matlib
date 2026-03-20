@@ -8,11 +8,12 @@ using std::print;
 using std::println;
 using std::vector;
 
+/// @brief Method to print matrix in nice way
 void Matrix::display() {
 
     // Currently inefficient
     std::vector<unsigned> max_values(y, 0U);
-    // unsigned maximum_value = 0; // Compare here to keep perf
+    // Compare here to keep perf
     for (int i = 0; i < x; i++) {
         for (int j = 0; j < y; j++) {
             if (std::to_string(data[i][j]).size() > max_values[j]) {
