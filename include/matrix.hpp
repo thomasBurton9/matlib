@@ -56,6 +56,14 @@ class Matrix {
         return os;
     }
 
+    // INDEXING DATA
+
+    std::vector<double>& operator[](std::size_t idx) {
+        return data[idx];
+    }
+
+    // TRANSPOSING
+
     /// @brief Transposes the matrix, swapping rows and columns
     /// @return A transpose of the current matrix
     Matrix transpose() {
