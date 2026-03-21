@@ -72,7 +72,7 @@ Matrix identityMatrix(unsigned size) {
 
     Matrix temp = Matrix(size, size);
     for (int i = 0; i < size; i++) {
-        temp.data[i][i] = 1;
+        temp[i][i] = 1;
     }
 
     return temp;
@@ -101,13 +101,15 @@ double dotProduct(const vector<double> &x, const vector<double> &y) {
     }
     return sum;
 }
-/// @brief Takes in an upper diagonal matrix and solves the equation Ax = b for x.
-/// @param A Upper Diagonal matrix - 1s along main diagonal and 0s below it of shape n x n
+/// @brief Takes in an upper diagonal matrix and solves the equation Ax = b for
+/// x.
+/// @param A Upper Diagonal matrix - 1s along main diagonal and 0s below it of
+/// shape n x n
 /// @param b The solution vector of shape n x 1
 /// @return The solution "x" in Ax = b.
 vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
 
-    // Check if arguments have correct shape.                                               
+    // Check if arguments have correct shape.
     if (A.x != A.y) {
         throw std::invalid_argument("A must be a square matrix");
     } else if (A.x != b.x) {
@@ -120,10 +122,10 @@ vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
     Matrix tempb = b;
 
     vector<double> results(b.x, 0);
-    
+
     for (int i = b.x - 1; i >= 0; i--) {
         for (int j = i + 1; j < b.x; j++) {
-            tempb[i][0] = tempb[i][0] - tempb[j][0] * tempA[i][j]; 
+            tempb[i][0] = tempb[i][0] - tempb[j][0] * tempA[i][j];
             tempA[i][j] = tempA[i][j] - tempA[i][j];
         }
     }
@@ -133,7 +135,6 @@ vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
     }
 
     return results;
-
 }
 /// @brief Creates an upper diagonal matrix to help in solving Ax = b
 /// @param A Square "coefficient" matrix A size n x n
@@ -144,7 +145,7 @@ vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
 /// mathematical manipulating
 tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
                                                 const Matrix &b) {
-    // Check if arguments have correct shape.                                               
+    // Check if arguments have correct shape.
     if (A.x != A.y) {
         throw std::invalid_argument("A must be a square matrix");
     } else if (A.x != b.x) {
@@ -157,24 +158,42 @@ tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
     Matrix tempb = b;
     // Go row by row
     for (int i = 0; i < A.x; i++) {
-        // Initially make all the values to the left of the main diagonal in the current row 0.
+        // Initially make all the values to the left of the main diagonal in the
+        // current row 0.
         for (int k = 0; k < i; k++) {
-            double A_i_k = tempA.data[i][k];
+            double A_i_k = tempA[i][k];
             for (int l = k; l < A.x; l++) {
-                tempA.data[i][l] = tempA.data[i][l] - A_i_k * tempA.data[k][l];
+                tempA[i][l] = tempA[i][l] - A_i_k * tempA[k][l];
             }
-            tempb.data[i][0] = tempb.data[i][0] - A_i_k * tempb.data[k][0];
+            tempb[i][0] = tempb[i][0] - A_i_k * tempb[k][0];
         }
         // Normalize main diagonal to 1 in the current row
-        double A_i_i = tempA.data[i][i];
+        double A_i_i = tempA[i][i];
         for (int j = 0; j < A.y; j++) {
-            if (tempA.data[i][i] == 0.0) {
-                throw std::runtime_error("Not implemented yet");
+            if (tempA[i][i] == 0.0) {
+                bool swapped = false;
+                for (int m = i + 1; m < A.x; m++) {
+                    if (tempA[m][i] != 0) {
+                        // Swap Rows
+                        vector<double> tempRow = tempA[m];
+                        double tempSol = tempb[m][0];
+                        tempA[m] = tempA[i];
+                        tempb[m][0] = tempb[i][0];
+
+                        tempA[i] = tempRow;
+                        tempb[i][0] = tempSol;
+
+                        swapped = true;
+                        break;
+                    }
+                }
+                if (!swapped) {
+                    throw std::runtime_error("Not implemented yet");
+                }
             }
-            tempA.data[i][j] =
-                tempA.data[i][j] / A_i_i; // Convert the main number to a 1
+            tempA[i][j] = tempA[i][j] / A_i_i; // Convert the main number to a 1
         }
-        tempb.data[i][0] = tempb.data[i][0] / A_i_i; // Do the same to b
+        tempb[i][0] = tempb[i][0] / A_i_i; // Do the same to b
     }
     return {tempA, tempb};
 }
@@ -185,6 +204,6 @@ tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
 vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
     auto [upperA, upperb] = createUpperDiagonalMatrix(A, b);
     vector<double> resultVector = getCoefficientSolutions(upperA, upperb);
-    
+
     return resultVector;
 }
