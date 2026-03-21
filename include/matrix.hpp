@@ -245,8 +245,17 @@ class Matrix {
 
 Matrix identityMatrix(unsigned size);
 
+// MATRIX SOLVING
+
 std::tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A, const Matrix &b);
 
 std::vector<double> createMainDiagonalMatrix(const Matrix &A, const Matrix &b);
 
 std::vector<double> guassianSolve(const Matrix &A, const Matrix &b);
+
+// DETERMINANTS
+
+double determinant(const Matrix &mat);
+
+// PERMUTATION
+bool isEvenPermutation(std::vector<double> &permutation);

@@ -1,3 +1,4 @@
+#include <numeric>
 #include <print>
 #include <tuple>
 #include <vector>
@@ -5,6 +6,7 @@
 #include "matrix.hpp"
 
 using std::initializer_list;
+using std::iota;
 using std::print;
 using std::println;
 using std::tuple;
@@ -206,4 +208,35 @@ vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
     vector<double> resultVector = getCoefficientSolutions(upperA, upperb);
 
     return resultVector;
+}
+
+double determinant(const Matrix &mat) {
+    // Check if arguments have correct shape.
+    if (mat.x != mat.y) {
+        throw std::invalid_argument("Mat must be a square matrix");
+    }
+    vector<double> S_n(mat.x);
+
+    iota(S_n.begin(), S_n.end(),
+         1); // Create vector from 1 to n where n is length of matrix mat
+
+    return 0.0; // Temp value
+}
+/// @brief Function to determine if a permutation is even, via counting
+/// inversions
+/// @param permutation Permutation to calculate
+/// @return True if even, false if odd permutation
+bool isEvenPermutation(vector<double> &permutation) {
+    // O(n^2)
+    int inversionCount = 0;
+
+    for (int i = 0; i < permutation.size() - 1; i++) {
+        for (int j = i + 1; j < permutation.size(); j++) {
+            if (permutation[i] > permutation[j]) {
+                inversionCount++;
+            }
+        }
+    }
+
+    return inversionCount % 2 == 0;
 }
