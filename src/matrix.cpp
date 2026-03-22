@@ -210,23 +210,64 @@ vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
     return resultVector;
 }
 
-double determinant(const Matrix &mat) {
+int factorial(int number) {
+    int sum = 1;
+
+    for (int i = 1; i <= number; i++) {
+        sum *= i;
+    }
+    return sum;
+}
+
+double determinantLeibniz(const Matrix &mat) {
     // Check if arguments have correct shape.
     if (mat.x != mat.y) {
         throw std::invalid_argument("Mat must be a square matrix");
     }
-    vector<double> S_n(mat.x);
+    vector<int> S_n(mat.x);
 
     iota(S_n.begin(), S_n.end(),
          1); // Create vector from 1 to n where n is length of matrix mat
 
+    vector<vector<double>> Permutations(factorial(mat.x));
+
+    // C
+    for (int i = 0; i < Permutations.size(); i++) {
+    }
     return 0.0; // Temp value
 }
+
+bool swapValues(int i, int j, vector<double> &Array) {
+    double temp = Array[i];
+    Array[i] = Array[j];
+    Array[j] = temp;
+    return true;
+
+}
+void heapsAlgorithm(int k, vector<double> &A,
+                              std::vector<std::vector<double>> &allPermutations) {
+    if (k == 1) {
+        allPermutations.push_back(A);
+        return;
+    } else {
+        heapsAlgorithm(k - 1, A, allPermutations);
+
+        for (int i = 0; i < k - 1; i++) {
+            if (k % 2 == 0) {
+                auto _ = swapValues(i, k - 1, A);
+            } else {
+                auto _ = swapValues(0, k - 1, A);
+            }
+            heapsAlgorithm(k - 1, A, allPermutations);
+        }
+    }
+}
+
 /// @brief Function to determine if a permutation is even, via counting
 /// inversions
 /// @param permutation Permutation to calculate
 /// @return True if even, false if odd permutation
-bool isEvenPermutation(vector<double> &permutation) {
+bool isEvenPermutation(vector<int> &permutation) {
     // O(n^2)
     int inversionCount = 0;
 

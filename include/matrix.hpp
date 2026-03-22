@@ -255,7 +255,15 @@ std::vector<double> guassianSolve(const Matrix &A, const Matrix &b);
 
 // DETERMINANTS
 
-double determinant(const Matrix &mat);
+double determinantLeibniz(const Matrix &mat);
 
 // PERMUTATION
+
+int factorial(int number);
+
 bool isEvenPermutation(std::vector<double> &permutation);
+
+
+bool swapValues(int i, int j, std::vector<double> &Array);
+
+void heapsAlgorithm(int k, std::vector<double> &A, std::vector<std::vector<double>> &allPermutations);
