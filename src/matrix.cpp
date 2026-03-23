@@ -88,6 +88,7 @@ vector<double> getColumn(const vector<vector<double>> &mat_data,
     }
     return column_vector;
 }
+
 /// @brief Basic dot product method between 2 vectors of same length
 /// @param x Reference to vector with same length as y
 /// @param y reference to vector with same length as x
@@ -103,6 +104,7 @@ double dotProduct(const vector<double> &x, const vector<double> &y) {
     }
     return sum;
 }
+
 /// @brief Takes in an upper diagonal matrix and solves the equation Ax = b for
 /// x.
 /// @param A Upper Diagonal matrix - 1s along main diagonal and 0s below it of
@@ -138,6 +140,7 @@ vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
 
     return results;
 }
+
 /// @brief Creates an upper diagonal matrix to help in solving Ax = b
 /// @param A Square "coefficient" matrix A size n x n
 /// @param b Result matrix, should be size n x 1
@@ -145,8 +148,8 @@ vector<double> getCoefficientSolutions(const Matrix &A, const Matrix &b) {
 /// diagonal and 0s below it.
 /// @return Matrix tempb will be the resulting b matrix after all the
 /// mathematical manipulating
-tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
-                                                const Matrix &b) {
+tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A,
+                                                        const Matrix &b) {
     // Check if arguments have correct shape.
     if (A.x != A.y) {
         throw std::invalid_argument("A must be a square matrix");
@@ -199,12 +202,13 @@ tuple<Matrix, Matrix> createUpperDiagonalMatrix(const Matrix &A,
     }
     return {tempA, tempb};
 }
+
 /// @brief Solves Ax = b using guassian elimination
 /// @param A Matrix A of shape n x n
 /// @param b Matrix b of shape n x 1
 /// @return The solutions ("x") to the equation Ax = b
 vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
-    auto [upperA, upperb] = createUpperDiagonalMatrix(A, b);
+    auto [upperA, upperb] = createUpperDiagonalSingularMatrix(A, b);
     vector<double> resultVector = getCoefficientSolutions(upperA, upperb);
 
     return resultVector;
@@ -236,12 +240,7 @@ double determinantLeibniz(Matrix &mat) {
     vector<vector<int>> Permutations;
     Permutations.reserve(factorial(mat.x));
 
-    std::print("Size: {}\n", factorial(mat.x));
 
-    for (int scalar : S_n) {
-        std::print("{} ", scalar);
-    }
-    std::println();
     heapsAlgorithm(mat.x, S_n, Permutations);
 
     double determinant = 0.0;
@@ -253,7 +252,7 @@ double determinantLeibniz(Matrix &mat) {
         }
         for (int j = 0; j < Permutations[i].size(); j++) {
             int x = Permutations[i][j];
-            tempValue = tempValue * (mat[j][Permutations[i][j]-1]);
+            tempValue = tempValue * (mat[j][Permutations[i][j] - 1]);
         }
 
         determinant += tempValue;
@@ -270,8 +269,9 @@ void swapValues(int i, int j, vector<int> &Array) {
     Array[j] = temp;
 }
 
-/// @brief Performs Heaps algorithm returning all possible permutations of a list of int's
-/// @param k How many elements to operate on (Use k = A.size() as a default) 
+/// @brief Performs Heaps algorithm returning all possible permutations of a
+/// list of int's
+/// @param k How many elements to operate on (Use k = A.size() as a default)
 /// @param A Vector of int's to permute
 /// @param allPermutations Array to add all the permutations to
 void heapsAlgorithm(int k, vector<int> &A,
@@ -310,4 +310,58 @@ bool isEvenPermutation(vector<int> &permutation) {
     }
 
     return inversionCount % 2 == 0;
+}
+
+double determinantLU(Matrix &mat) {
+    // Check if arguments have
+    // correct shape.
+    if (mat.x != mat.y) {
+        throw std::invalid_argument("A must be a square matrix");
+    }
+    int P = 1;
+
+    // Create temporary matrices
+    // to allow modification
+    Matrix tempA = mat;
+    // Go row by row
+    int i = 0;
+    while (i < mat.x) {
+        // Initially make all the values to the left of the main diagonal in the
+        // current row 0
+        for (int k = 0; k < i; k++) { // Go through all values that need to be 0
+            double A_i_k = tempA[i][k] / tempA[k][k]; // Value to remove.
+            for (int l = k; l < mat.x; l++) {
+                tempA[i][l] = tempA[i][l] - A_i_k * tempA[k][l];
+            }
+        }
+        // Potentially need swapping??
+        // Normalize main diagonal to 1 in the current row
+
+        if (tempA[i][i] == 0) {
+            bool swapped = false;
+            for (int m = i + 1; m < mat.x; m++) {
+                if (tempA[m][i] != 0) {
+                    // Swap Rows
+                    vector<double> tempRow = tempA[m];
+                    tempA[m] = tempA[i];
+                    tempA[i] = tempRow;
+                    swapped = true;
+                    P *= -1; // Track swaps 
+                    break;
+                }
+            }
+            if (!swapped) {
+                throw std::runtime_error("Not implemented yet");
+            }
+        } else {
+            i++;
+        }
+
+    }
+    double determinant = 1;
+    for (int i = 0; i < mat.x; i++) {
+        determinant *= tempA[i][i];
+    }
+    determinant *= P;
+    return determinant;
 }
