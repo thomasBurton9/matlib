@@ -39,7 +39,25 @@ void Matrix::display() {
         std::println("|");
     }
 }
-/// @brief Method to add date to matrices
+/// @brief Method to add Data to matrix via a vector
+/// @param new_data A 2d vector of doubles. Error is thrown if the shape isn't
+/// equal to the base matrix or data is missing.
+void Matrix::assignData(std::vector<std::vector<double>> new_data) {
+    if (new_data.size() != x) {
+        throw std::invalid_argument(
+            "Data must be the same length as base matrix");
+    }
+
+    for (vector<double> vector : new_data) {
+        if (vector.size() != y) {
+            throw std::invalid_argument(
+                "Data must be the same length and shape as in the base matrix");
+        }
+    }
+
+    data = new_data;
+}
+/// @brief Method to add data to matrices via an initialization list
 /// @param mat A 2d array of double's. Error is thrown if the shape isn't equal
 /// to the base matrix.
 void Matrix::assignData(initializer_list<initializer_list<double>> mat) {
@@ -256,7 +274,6 @@ double determinantLeibniz(Matrix &mat) {
     vector<vector<int>> Permutations;
     Permutations.reserve(factorial(mat.x));
 
-
     heapsAlgorithm(mat.x, S_n, Permutations);
 
     double determinant = 0.0;
@@ -328,6 +345,9 @@ bool isEvenPermutation(vector<int> &permutation) {
     return inversionCount % 2 == 0;
 }
 
+/// @brief Get the determinant of matrix via LU decomposition
+/// @param mat n x n matrix to get determinant of
+/// @return scalar value of determinant
 double determinantLU(Matrix &mat) {
     // Check if arguments have correct shape.
     if (mat.x != mat.y) {
@@ -340,7 +360,8 @@ double determinantLU(Matrix &mat) {
     // Go row by row
     int i = 0;
     while (i < mat.x) {
-        // Initially make all the values to the left of the main diagonal in the current row 0
+        // Initially make all the values to the left of the main diagonal in the
+        // current row 0
         for (int k = 0; k < i; k++) { // Go through all values that need to be 0
             double A_i_k = tempA[i][k] / tempA[k][k]; // Value to remove.
             for (int l = k; l < mat.x; l++) {
@@ -357,7 +378,7 @@ double determinantLU(Matrix &mat) {
                     tempA[m] = tempA[i];
                     tempA[i] = tempRow;
                     swapped = true;
-                    P *= -1; // Track swaps 
+                    P *= -1; // Track swaps
                     break;
                 }
             }
@@ -367,7 +388,6 @@ double determinantLU(Matrix &mat) {
         } else {
             i++;
         }
-
     }
     double determinant = 1;
     for (int i = 0; i < mat.x; i++) {

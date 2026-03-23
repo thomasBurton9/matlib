@@ -5,8 +5,9 @@
 #include <ostream>
 #include <print>
 #include <string>
-#include <vector>
 #include <tuple>
+#include <vector>
+
 
 std::vector<double> getColumn(const std::vector<std::vector<double>> &mat_data,
                               unsigned index);
@@ -58,9 +59,7 @@ class Matrix {
 
     // INDEXING DATA
 
-    std::vector<double>& operator[](int idx) {
-        return data[idx];
-    }
+    std::vector<double> &operator[](int idx) { return data[idx]; }
 
     // TRANSPOSING
 
@@ -192,8 +191,9 @@ class Matrix {
         return obj * scalar;
     }
 
-    // Note that there is currently no operation for regular multiplication by item with 2 equally sized n by n matrices.
-    // Potentially move matmul to a regular function and use * operator for itemwise multiplication
+    // Note that there is currently no operation for regular multiplication by
+    // item with 2 equally sized n by n matrices. Potentially move matmul to a
+    // regular function and use * operator for itemwise multiplication
 
     /// @brief Performs matrix multiplication between 2 matrices with sizes n *
     /// m, m * p
@@ -233,14 +233,16 @@ class Matrix {
         }
         return temp;
     }
-    // Note that there is no division of scalar by matrix given it is generally undefined in linear algebra
-    // Could potentially make it multiply by the inverse of the matrix.
+    // Note that there is no division of scalar by matrix given it is generally
+    // undefined in linear algebra Could potentially make it multiply by the
+    // inverse of the matrix.
 
     void operator()(int x, int y) const { std::println("{} ", data[x][y]); }
 
     void display();
-    void assignData(std::initializer_list<std::initializer_list<double>> mat);
 
+    void assignData(std::vector<std::vector<double>> data);
+    void assignData(std::initializer_list<std::initializer_list<double>> mat);
 };
 
 Matrix identityMatrix(unsigned size);
@@ -251,7 +253,8 @@ double matrixTrace(Matrix &mat);
 
 // MATRIX SOLVING
 
-std::tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A, const Matrix &b);
+std::tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A,
+                                                             const Matrix &b);
 
 std::vector<double> createMainDiagonalMatrix(const Matrix &A, const Matrix &b);
 
@@ -269,7 +272,7 @@ int factorial(int number);
 
 bool isEvenPermutation(std::vector<double> &permutation);
 
-
 void swapValues(int i, int j, std::vector<double> &Array);
 
-void heapsAlgorithm(int k, std::vector<int> &A, std::vector<std::vector<int>> &allPermutations);
+void heapsAlgorithm(int k, std::vector<int> &A,
+                    std::vector<std::vector<int>> &allPermutations);
