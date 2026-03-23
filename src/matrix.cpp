@@ -209,7 +209,9 @@ vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
 
     return resultVector;
 }
-
+/// @brief Function to get the factorial of an integer below 12
+/// @param number Number to get the factorial off
+/// @return The factorial of the number
 int factorial(int number) {
     int sum = 1;
 
@@ -218,8 +220,10 @@ int factorial(int number) {
     }
     return sum;
 }
-
-double determinantLeibniz(const Matrix &mat) {
+/// @brief Get the determinant of a matrix using the inefficient leibniz method
+/// @param mat n x n matrix to get determinant off
+/// @return The determinant of the matrix.
+double determinantLeibniz(Matrix &mat) {
     // Check if arguments have correct shape.
     if (mat.x != mat.y) {
         throw std::invalid_argument("Mat must be a square matrix");
@@ -229,23 +233,49 @@ double determinantLeibniz(const Matrix &mat) {
     iota(S_n.begin(), S_n.end(),
          1); // Create vector from 1 to n where n is length of matrix mat
 
-    vector<vector<double>> Permutations(factorial(mat.x));
+    vector<vector<int>> Permutations;
+    Permutations.reserve(factorial(mat.x));
 
-    // C
-    for (int i = 0; i < Permutations.size(); i++) {
+    std::print("Size: {}\n", factorial(mat.x));
+
+    for (int scalar : S_n) {
+        std::print("{} ", scalar);
     }
-    return 0.0; // Temp value
-}
+    std::println();
+    heapsAlgorithm(mat.x, S_n, Permutations);
 
-bool swapValues(int i, int j, vector<double> &Array) {
-    double temp = Array[i];
+    double determinant = 0.0;
+
+    for (int i = 0; i < Permutations.size(); i++) {
+        double tempValue = 1.0;
+        if (i % 2 != 0) {
+            tempValue = -1;
+        }
+        for (int j = 0; j < Permutations[i].size(); j++) {
+            int x = Permutations[i][j];
+            tempValue = tempValue * (mat[j][Permutations[i][j]-1]);
+        }
+
+        determinant += tempValue;
+    }
+    return determinant; // Temp value
+}
+/// @brief Swap function to swap 2 values in an array
+/// @param i Index 1
+/// @param j Index 2
+/// @param Array Array to perform the operation on
+void swapValues(int i, int j, vector<int> &Array) {
+    int temp = Array[i];
     Array[i] = Array[j];
     Array[j] = temp;
-    return true;
-
 }
-void heapsAlgorithm(int k, vector<double> &A,
-                              std::vector<std::vector<double>> &allPermutations) {
+
+/// @brief Performs Heaps algorithm returning all possible permutations of a list of int's
+/// @param k How many elements to operate on (Use k = A.size() as a default) 
+/// @param A Vector of int's to permute
+/// @param allPermutations Array to add all the permutations to
+void heapsAlgorithm(int k, vector<int> &A,
+                    std::vector<std::vector<int>> &allPermutations) {
     if (k == 1) {
         allPermutations.push_back(A);
         return;
@@ -254,9 +284,9 @@ void heapsAlgorithm(int k, vector<double> &A,
 
         for (int i = 0; i < k - 1; i++) {
             if (k % 2 == 0) {
-                auto _ = swapValues(i, k - 1, A);
+                swapValues(i, k - 1, A);
             } else {
-                auto _ = swapValues(0, k - 1, A);
+                swapValues(0, k - 1, A);
             }
             heapsAlgorithm(k - 1, A, allPermutations);
         }

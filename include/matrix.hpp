@@ -58,7 +58,7 @@ class Matrix {
 
     // INDEXING DATA
 
-    std::vector<double>& operator[](std::size_t idx) {
+    std::vector<double>& operator[](int idx) {
         return data[idx];
     }
 
@@ -255,7 +255,7 @@ std::vector<double> guassianSolve(const Matrix &A, const Matrix &b);
 
 // DETERMINANTS
 
-double determinantLeibniz(const Matrix &mat);
+double determinantLeibniz(Matrix &mat);
 
 // PERMUTATION
 
@@ -264,6 +264,6 @@ int factorial(int number);
 bool isEvenPermutation(std::vector<double> &permutation);
 
 
-bool swapValues(int i, int j, std::vector<double> &Array);
+void swapValues(int i, int j, std::vector<double> &Array);
 
-void heapsAlgorithm(int k, std::vector<double> &A, std::vector<std::vector<double>> &allPermutations);
+void heapsAlgorithm(int k, std::vector<int> &A, std::vector<std::vector<int>> &allPermutations);
