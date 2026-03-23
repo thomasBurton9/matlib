@@ -245,6 +245,10 @@ class Matrix {
 
 Matrix identityMatrix(unsigned size);
 
+// TRACE
+
+double matrixTrace(Matrix &mat);
+
 // MATRIX SOLVING
 
 std::tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A, const Matrix &b);

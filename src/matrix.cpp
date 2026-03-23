@@ -80,6 +80,22 @@ Matrix identityMatrix(unsigned size) {
     return temp;
 }
 
+/// @brief Function to get the trace (sum of elements on main diagonal)
+/// @param mat n x n matrix to get trace off
+/// @return The sum of elements on main diagonal
+double matrixTrace(Matrix &mat) {
+    if (mat.x != mat.y) {
+        throw std::invalid_argument("Matrix must be of size n x n");
+    }
+
+    double sum = 0.0;
+    for (int i = 0; i < mat.x; i++) {
+        sum += mat[i][i];
+    }
+
+    return sum;
+}
+
 vector<double> getColumn(const vector<vector<double>> &mat_data,
                          unsigned index) {
     vector<double> column_vector{};
