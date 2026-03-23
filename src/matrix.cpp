@@ -313,29 +313,24 @@ bool isEvenPermutation(vector<int> &permutation) {
 }
 
 double determinantLU(Matrix &mat) {
-    // Check if arguments have
-    // correct shape.
+    // Check if arguments have correct shape.
     if (mat.x != mat.y) {
         throw std::invalid_argument("A must be a square matrix");
     }
     int P = 1;
 
-    // Create temporary matrices
-    // to allow modification
+    // Create temporary matrices to allow modification
     Matrix tempA = mat;
     // Go row by row
     int i = 0;
     while (i < mat.x) {
-        // Initially make all the values to the left of the main diagonal in the
-        // current row 0
+        // Initially make all the values to the left of the main diagonal in the current row 0
         for (int k = 0; k < i; k++) { // Go through all values that need to be 0
             double A_i_k = tempA[i][k] / tempA[k][k]; // Value to remove.
             for (int l = k; l < mat.x; l++) {
                 tempA[i][l] = tempA[i][l] - A_i_k * tempA[k][l];
             }
         }
-        // Potentially need swapping??
-        // Normalize main diagonal to 1 in the current row
 
         if (tempA[i][i] == 0) {
             bool swapped = false;
