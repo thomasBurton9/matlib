@@ -42,7 +42,7 @@ void Matrix::display() {
 /// @brief Method to add Data to matrix via a vector
 /// @param new_data A 2d vector of doubles. Error is thrown if the shape isn't
 /// equal to the base matrix or data is missing.
-void Matrix::assignData(const std::vector<std::vector<double>>& new_data) {
+void Matrix::assignData(const std::vector<std::vector<double>> &new_data) {
     if (new_data.size() != x) {
         throw std::invalid_argument(
             "Data must be the same length as base matrix");
@@ -54,11 +54,11 @@ void Matrix::assignData(const std::vector<std::vector<double>>& new_data) {
                 "Data must be the same length and shape as in the base matrix");
         }
     }
-    
+
     // For storing data in a flat vector instead of 2d vector.
     for (int i = 0; i < x; i++) {
-        for (int j =0; j<y; j++) {
-            newData[(i)*y+(j)] = new_data[i][j];
+        for (int j = 0; j < y; j++) {
+            newData[(i)*y + (j)] = new_data[i][j];
         }
     }
 
@@ -85,7 +85,8 @@ void Matrix::assignData(initializer_list<initializer_list<double>> mat) {
         int j = 0;
         for (double scalar : vector) {
             data[i][j] = scalar;
-            newData[(i)*y+(j)] = scalar; // For storing data in a flat vector instead of 2d vector.
+            newData[(i)*y + (j)] = scalar; // For storing data in a flat vector
+                                           // instead of 2d vector.
             j++;
         }
         i++;
@@ -122,8 +123,7 @@ double matrixTrace(Matrix &mat) {
     return sum;
 }
 
-vector<double> getColumn(Matrix &matrix,
-                         unsigned index) {
+vector<double> getColumn(Matrix &matrix, unsigned index) {
     vector<double> column_vector{};
     for (int i = 0; i < matrix.x; i++) {
         column_vector.push_back(matrix[i][index]);
@@ -256,9 +256,8 @@ vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
     return resultVector;
 }
 
-
 std::tuple<Matrix, Matrix> LUDecomposition(const Matrix &A) {
-   return {A, A}; 
+    return {A, A};
 }
 
 /// @brief Function to get the factorial of an integer below 12

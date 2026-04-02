@@ -3,6 +3,7 @@
 #include <array>
 #include <cmath>
 #include <iostream>
+#include <optional>
 #include <ostream>
 #include <print>
 #include <span>
@@ -14,8 +15,7 @@ class Matrix;
 
 double dotProduct(std::span<const double> x, std::span<const double> y);
 
-std::vector<double> getColumn(Matrix &matrix,
-                              unsigned index);
+std::vector<double> getColumn(Matrix &matrix, unsigned index);
 
 /// @brief Matrix class to be used for numerical computation.
 class Matrix {
@@ -61,15 +61,20 @@ class Matrix {
         return os;
     }
 
-    // INDEXING DATA
+    // INDEXING and GETTING DATA
 
-    std::span<double> operator[](int idx) {
-
+    std::span<double> operator[](std::optional<int> idx = std::nullopt) {
         std::span<double> full_span(newData);
+        if (idx.has_value()) {
 
-        std::span<double> return_data = full_span.subspan((idx * y), y);
-        return return_data;
+            std::span<double> return_data = full_span.subspan((*idx * y), y);
+            return return_data;
+        } else {
+            return full_span;
+        }
     }
+
+    std::span<double> get_all_data() { return operator[](); }
 
     // TRANSPOSING
 
@@ -197,9 +202,7 @@ class Matrix {
     /// @param scalar The scalar to multiply by
     /// @param obj The matrix to apply multiplication
     /// @return The matrix that has been multiplied
-    friend Matrix operator*(double scalar, Matrix &obj) {
-        return obj * scalar;
-    }
+    friend Matrix operator*(double scalar, Matrix &obj) { return obj * scalar; }
 
     // Note that there is currently no operation for regular multiplication by
     // item with 2 equally sized n by n matrices. Potentially move matmul to a
@@ -251,17 +254,11 @@ class Matrix {
 
     void display();
 
-    void assignData(const std::vector<std::vector<double>>& data);
+    void assignData(const std::vector<std::vector<double>> &data);
     void assignData(std::initializer_list<std::initializer_list<double>> mat);
 };
 
 Matrix identityMatrix(unsigned size);
-
-
-
-// MATRIX OPERATIONS
-
-
 
 // TRACE
 
