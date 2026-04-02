@@ -1,27 +1,31 @@
 #pragma once
 
+#include <array>
 #include <cmath>
 #include <iostream>
 #include <ostream>
 #include <print>
+#include <span>
 #include <string>
 #include <tuple>
 #include <vector>
 
+class Matrix;
 
-std::vector<double> getColumn(const std::vector<std::vector<double>> &mat_data,
+double dotProduct(std::span<const double> x, std::span<const double> y);
+
+std::vector<double> getColumn(Matrix &matrix,
                               unsigned index);
-
-double dotProduct(const std::vector<double> &x, const std::vector<double> &y);
 
 /// @brief Matrix class to be used for numerical computation.
 class Matrix {
   public:
     Matrix(unsigned xSize, unsigned ySize, bool zeros = true)
-        : x{xSize}, y{ySize}, data(xSize, std::vector<double>(ySize, 0.0)) {}
+        : data(xSize, std::vector<double>(ySize, 0.0)), newData(xSize * ySize),
+          x{xSize}, y{ySize} {}
 
     std::vector<std::vector<double>> data;
-
+    std::vector<double> newData;
     unsigned x;
     unsigned y;
 
@@ -29,27 +33,27 @@ class Matrix {
     /// @param os Current output stream
     /// @param obj Matrix to print
     /// @return a stream to print
-    friend std::ostream &operator<<(std::ostream &os, const Matrix &obj) {
+    friend std::ostream &operator<<(std::ostream &os, Matrix &obj) {
         // Currently inefficient
         std::vector<unsigned> max_values(obj.y, 0U);
-        // unsigned maximum_value = 0; // Compare here to keep perf
+
         for (int i = 0; i < obj.x; i++) {
             for (int j = 0; j < obj.y; j++) {
-                if (std::to_string(obj.data[i][j]).size() > max_values[j]) {
-                    max_values[j] = std::to_string(obj.data[i][j]).size();
+                if (std::to_string(obj[i][j]).size() > max_values[j]) {
+                    max_values[j] = std::to_string(obj[i][j]).size();
                 }
             }
         }
         for (int i = 0; i < obj.x; i++) {
             std::print("|");
             for (int j = 0; j < obj.y; j++) {
-                int number_size = std::to_string(obj.data[i][j]).size();
+                int number_size = std::to_string(obj[i][j]).size();
                 if (j == 0) {
                     number_size += 1;
                 }
                 std::string full_string =
                     std::string(max_values[j] - number_size + 1, ' ');
-                std::print("{}{}", full_string, obj.data[i][j]);
+                std::print("{}{}", full_string, obj[i][j]);
             }
             std::println("|");
         }
@@ -59,7 +63,13 @@ class Matrix {
 
     // INDEXING DATA
 
-    std::vector<double> &operator[](int idx) { return data[idx]; }
+    std::span<double> operator[](int idx) {
+
+        std::span<double> full_span(newData);
+
+        std::span<double> return_data = full_span.subspan((idx * y), y);
+        return return_data;
+    }
 
     // TRANSPOSING
 
@@ -69,7 +79,7 @@ class Matrix {
         Matrix temp(y, x);
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[j][i] = data[i][j];
+                temp[j][i] = (*this)[i][j];
             }
         }
         return temp;
@@ -83,7 +93,7 @@ class Matrix {
     /// @brief Performs addition of 2 matrices with the same dimensions
     /// @param obj Reference to other matrix
     /// @return A matrix that is the sum of the 2 matrices
-    Matrix operator+(const Matrix &obj) const {
+    Matrix operator+(Matrix &obj) {
         if (x != obj.x || y != obj.y) {
             throw std::invalid_argument("Shape mismatch between 2 matrices");
         }
@@ -91,7 +101,7 @@ class Matrix {
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] + obj.data[i][j];
+                temp[i][j] = (*this)[i][j] + obj[i][j];
             }
         }
         return temp;
@@ -104,7 +114,7 @@ class Matrix {
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] + scalar;
+                temp[i][j] = data[i][j] + scalar;
             }
         }
 
@@ -123,7 +133,7 @@ class Matrix {
     /// @brief Performs subtraction of 2 matrices with the same dimensions
     /// @param obj Reference to other matrix
     /// @return A matrix that is the difference of the 2 matrices
-    Matrix operator-(const Matrix &obj) const {
+    Matrix operator-(Matrix &obj) {
         if (x != obj.x || y != obj.y) {
             throw std::invalid_argument("Shape mismatch between 2 matrices");
         }
@@ -131,7 +141,7 @@ class Matrix {
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] - obj.data[i][j];
+                temp[i][j] = data[i][j] - obj[i][j];
             }
         }
         return temp;
@@ -145,7 +155,7 @@ class Matrix {
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] - scalar;
+                temp[i][j] = data[i][j] - scalar;
             }
         }
 
@@ -155,12 +165,12 @@ class Matrix {
     /// @param scalar The scalar to add
     /// @param obj A reference to the matrix on the right.
     /// @return The matrix with addition performed on it
-    friend Matrix operator-(double scalar, const Matrix &obj) {
+    friend Matrix operator-(double scalar, Matrix &obj) {
         Matrix temp(obj.x, obj.y);
 
         for (int i = 0; i < obj.x; i++) {
             for (int j = 0; j < obj.y; j++) {
-                temp.data[i][j] = scalar - obj.data[i][j];
+                temp[i][j] = scalar - obj[i][j];
             }
         }
 
@@ -172,12 +182,12 @@ class Matrix {
     /// @brief Performs scalar multiplication on each value of matrix
     /// @param scalar The scalar to multiply by
     /// @return The matrix that has been multiplied
-    Matrix operator*(double scalar) const {
+    Matrix operator*(double scalar) {
         Matrix temp(x, y);
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] * scalar;
+                temp[i][j] = (*this)[i][j] * scalar;
             }
         }
         return temp;
@@ -187,7 +197,7 @@ class Matrix {
     /// @param scalar The scalar to multiply by
     /// @param obj The matrix to apply multiplication
     /// @return The matrix that has been multiplied
-    friend Matrix operator*(double scalar, const Matrix &obj) {
+    friend Matrix operator*(double scalar, Matrix &obj) {
         return obj * scalar;
     }
 
@@ -199,7 +209,7 @@ class Matrix {
     /// m, m * p
     /// @param obj Other matrix
     /// @return Returns matrix with size n * p
-    Matrix operator*(Matrix &obj) const {
+    Matrix operator*(Matrix &obj) {
         if (y != obj.x) {
             throw std::invalid_argument(
                 "Shape mismatch, inner shapes must be the same");
@@ -209,9 +219,9 @@ class Matrix {
         Matrix temp(x, obj.y);
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < obj.y; j++) {
-                temp.data[i][j] = dotProduct(
-                    data[i],
-                    getColumn(obj.data, j)); // getColumn might be inefficient
+                temp[i][j] = dotProduct(
+                    (*this)[i],
+                    getColumn(obj, j)); // getColumn might be inefficient
             }
         }
 
@@ -223,12 +233,12 @@ class Matrix {
     /// @brief Performs scalar division on each value of matrix
     /// @param scalar The scalar to divide by
     /// @return The matrix that has been divided
-    Matrix operator/(double scalar) const {
+    Matrix operator/(double scalar) {
         Matrix temp(x, y);
 
         for (int i = 0; i < x; i++) {
             for (int j = 0; j < y; j++) {
-                temp.data[i][j] = data[i][j] * scalar;
+                temp[i][j] = (*this)[i][j] * scalar;
             }
         }
         return temp;
@@ -237,15 +247,21 @@ class Matrix {
     // undefined in linear algebra Could potentially make it multiply by the
     // inverse of the matrix.
 
-    void operator()(int x, int y) const { std::println("{} ", data[x][y]); }
+    void operator()(int x, int y) { std::println("{} ", (*this)[x][y]); }
 
     void display();
 
-    void assignData(std::vector<std::vector<double>> data);
+    void assignData(const std::vector<std::vector<double>>& data);
     void assignData(std::initializer_list<std::initializer_list<double>> mat);
 };
 
 Matrix identityMatrix(unsigned size);
+
+
+
+// MATRIX OPERATIONS
+
+
 
 // TRACE
 
@@ -259,6 +275,10 @@ std::tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A,
 std::vector<double> createMainDiagonalMatrix(const Matrix &A, const Matrix &b);
 
 std::vector<double> guassianSolve(const Matrix &A, const Matrix &b);
+
+// LU
+
+std::tuple<Matrix, Matrix> LUDecomposition(const Matrix &A);
 
 // DETERMINANTS
 

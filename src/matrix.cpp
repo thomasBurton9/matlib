@@ -20,21 +20,21 @@ void Matrix::display() {
     // Compare here to keep perf
     for (int i = 0; i < x; i++) {
         for (int j = 0; j < y; j++) {
-            if (std::to_string(data[i][j]).size() > max_values[j]) {
-                max_values[j] = std::to_string(data[i][j]).size();
+            if (std::to_string((*this)[i][j]).size() > max_values[j]) {
+                max_values[j] = std::to_string((*this)[i][j]).size();
             }
         }
     }
     for (int i = 0; i < x; i++) {
         std::print("|");
         for (int j = 0; j < y; j++) {
-            int number_size = std::to_string(data[i][j]).size();
+            int number_size = std::to_string((*this)[i][j]).size();
             if (j == 0) {
                 number_size += 1;
             }
             std::string full_string =
                 std::string(max_values[j] - number_size + 1, ' ');
-            std::print("{}{}", full_string, data[i][j]);
+            std::print("{}{}", full_string, (*this)[i][j]);
         }
         std::println("|");
     }
@@ -42,7 +42,7 @@ void Matrix::display() {
 /// @brief Method to add Data to matrix via a vector
 /// @param new_data A 2d vector of doubles. Error is thrown if the shape isn't
 /// equal to the base matrix or data is missing.
-void Matrix::assignData(std::vector<std::vector<double>> new_data) {
+void Matrix::assignData(const std::vector<std::vector<double>>& new_data) {
     if (new_data.size() != x) {
         throw std::invalid_argument(
             "Data must be the same length as base matrix");
@@ -52,6 +52,13 @@ void Matrix::assignData(std::vector<std::vector<double>> new_data) {
         if (vector.size() != y) {
             throw std::invalid_argument(
                 "Data must be the same length and shape as in the base matrix");
+        }
+    }
+    
+    // For storing data in a flat vector instead of 2d vector.
+    for (int i = 0; i < x; i++) {
+        for (int j =0; j<y; j++) {
+            newData[(i)*y+(j)] = new_data[i][j];
         }
     }
 
@@ -78,6 +85,7 @@ void Matrix::assignData(initializer_list<initializer_list<double>> mat) {
         int j = 0;
         for (double scalar : vector) {
             data[i][j] = scalar;
+            newData[(i)*y+(j)] = scalar; // For storing data in a flat vector instead of 2d vector.
             j++;
         }
         i++;
@@ -114,11 +122,11 @@ double matrixTrace(Matrix &mat) {
     return sum;
 }
 
-vector<double> getColumn(const vector<vector<double>> &mat_data,
+vector<double> getColumn(Matrix &matrix,
                          unsigned index) {
     vector<double> column_vector{};
-    for (int i = 0; i < mat_data.size(); i++) {
-        column_vector.push_back(mat_data[i][index]);
+    for (int i = 0; i < matrix.x; i++) {
+        column_vector.push_back(matrix[i][index]);
     }
     return column_vector;
 }
@@ -127,7 +135,7 @@ vector<double> getColumn(const vector<vector<double>> &mat_data,
 /// @param x Reference to vector with same length as y
 /// @param y reference to vector with same length as x
 /// @return Scalar product of the input vectors.
-double dotProduct(const vector<double> &x, const vector<double> &y) {
+double dotProduct(std::span<const double> x, std::span<const double> y) {
     // Assert they are the same size.
     if (x.size() != y.size()) {
         throw std::invalid_argument("Both x and y must be the same length");
@@ -214,7 +222,7 @@ tuple<Matrix, Matrix> createUpperDiagonalSingularMatrix(const Matrix &A,
                 for (int m = i + 1; m < A.x; m++) {
                     if (tempA[m][i] != 0) {
                         // Swap Rows
-                        vector<double> tempRow = tempA[m];
+                        auto tempRow = tempA[m];
                         double tempSol = tempb[m][0];
                         tempA[m] = tempA[i];
                         tempb[m][0] = tempb[i][0];
@@ -247,6 +255,12 @@ vector<double> guassianSolve(const Matrix &A, const Matrix &b) {
 
     return resultVector;
 }
+
+
+std::tuple<Matrix, Matrix> LUDecomposition(const Matrix &A) {
+   return {A, A}; 
+}
+
 /// @brief Function to get the factorial of an integer below 12
 /// @param number Number to get the factorial off
 /// @return The factorial of the number
@@ -374,7 +388,7 @@ double determinantLU(Matrix &mat) {
             for (int m = i + 1; m < mat.x; m++) {
                 if (tempA[m][i] != 0) {
                     // Swap Rows
-                    vector<double> tempRow = tempA[m];
+                    auto tempRow = tempA[m];
                     tempA[m] = tempA[i];
                     tempA[i] = tempRow;
                     swapped = true;
